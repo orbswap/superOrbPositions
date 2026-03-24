@@ -101,11 +101,15 @@ contract SuperOrbPositionalAMM {
     }
 
     /// @notice Admin sets allowance for another contract to pull USDC or USDT from this contract.
-    function adminSetApproval(address tokenAddress, address approved) external onlyAdmin {
-        if (tokenAddress != address(USDC) && tokenAddress != address(USDT)) revert InvalidToken();
-        if (approved == address(0)) revert ZeroAddress();
+    function adminSetMaxApproval(address tokenAddress, address approved) external onlyAdmin {
         uint256 amount = type(uint256).max;
+        IERC20(tokenAddress).approve(approved, amount);
+        emit ApprovalSet(tokenAddress, approved, amount);
+    }
+
+    function adminSetApproval(address tokenAddress, address approved, uint256 amount) external onlyAdmin {
         if (!IERC20(tokenAddress).approve(approved, amount)) revert TransferOutFailed();
+        IERC20(tokenAddress).approve(approved, amount);
         emit ApprovalSet(tokenAddress, approved, amount);
     }
 

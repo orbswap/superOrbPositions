@@ -21,26 +21,15 @@ These match `USDC_MAINNET` / `USDT_MAINNET` in `script/DeploySuperOrbPositionalA
 
 Prerequisites: [Foundry](https://book.getfoundry.sh/), a Cast keystore account named `shells`, a mainnet RPC URL, and an [Etherscan API key](https://etherscan.io/apis).
 
-Set environment variables locally (never commit real keys; `.env` is gitignored):
+**One-line deploy** (replace `YOUR_ALCHEMY_KEY` and `YOUR_ETHERSCAN_API_KEY`; never commit real secrets):
 
 ```bash
-# Ethereum mainnet — Alchemy shape: https://eth-mainnet.g.alchemy.com/v2/<YOUR_KEY>
-export ETH_RPC_URL="https://eth-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY"
-export ETHERSCAN_API_KEY="YOUR_ETHERSCAN_API_KEY"
+forge script script/DeploySuperOrbPositionalAMM.s.sol:DeploySuperOrbPositionalAMM --rpc-url "https://eth-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY" --account shells --chain mainnet --broadcast --verify --etherscan-api-key "YOUR_ETHERSCAN_API_KEY" -vvvv
 ```
 
-Deploy `SuperOrbPositionalAMM` with the canonical mainnet USDC/USDT addresses (enforced when `chainid == 1` unless you set `SKIP_MAINNET_TOKEN_CHECK=true`):
+**Quoting:** Double-quote both the `--rpc-url` value and the `--etherscan-api-key` value. That is valid in `bash`/`zsh`, avoids surprises if the URL ever contains `&` or `?`, and keeps the API key from being mangled by the shell. (Unquoted values often work for simple alphanumeric URLs and keys, but quotes are the safe default.)
 
-```bash
-forge script script/DeploySuperOrbPositionalAMM.s.sol:DeploySuperOrbPositionalAMM \
-  --rpc-url "$ETH_RPC_URL" \
-  --account shells \
-  --chain mainnet \
-  --broadcast \
-  --verify \
-  --etherscan-api-key "$ETHERSCAN_API_KEY" \
-  -vvvv
-```
+Deploy uses the canonical mainnet USDC/USDT addresses from the script (enforced when `chainid == 1` unless you set `SKIP_MAINNET_TOKEN_CHECK=true`). You can instead set `ETH_RPC_URL` and `ETHERSCAN_API_KEY` and use `"$ETH_RPC_URL"` / `"$ETHERSCAN_API_KEY"` in the same flags.
 
 Foundry uses the `mainnet` etherscan entry from `foundry.toml` when the key is not passed on the CLI. If verification fails, confirm the RPC reports chain id `1` and the API key is valid for [Etherscan](https://etherscan.io/apis).
 
