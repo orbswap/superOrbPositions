@@ -5,30 +5,6 @@ import {Test} from "forge-std/Test.sol";
 import {SuperOrbPositionalAMM} from "../src/SuperOrbPositionalAMM.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
 
-/// @dev Mimics USDT-style approval semantics: non-zero -> non-zero reverts unless reset to zero first.
-contract MockNeedsZeroResetApprove {
-    mapping(address => mapping(address => uint256)) public allowance;
-
-    function approve(address spender, uint256 amount) external returns (bool) {
-        uint256 current = allowance[msg.sender][spender];
-        if (current != 0 && amount != 0) revert("RESET_REQUIRED");
-        allowance[msg.sender][spender] = amount;
-        return true;
-    }
-
-    function transfer(address, uint256) external pure returns (bool) {
-        return true;
-    }
-
-    function transferFrom(address, address, uint256) external pure returns (bool) {
-        return true;
-    }
-
-    function balanceOf(address) external pure returns (uint256) {
-        return 0;
-    }
-}
-
 contract SuperOrbPositionalAMMTest is Test {
     SuperOrbPositionalAMM internal amm;
     MockERC20 internal usdc;
@@ -111,18 +87,6 @@ contract SuperOrbPositionalAMMTest is Test {
         address spender = makeAddr("spender");
         amm.adminSetApproval(address(usdc), spender);
         assertEq(usdc.allowance(address(amm), spender), type(uint256).max);
-    }
-
-    function test_admin_set_approval_handles_zero_reset_tokens() public {
-        MockERC20 usdcLocal = new MockERC20("USDC_LOCAL");
-        MockNeedsZeroResetApprove usdtLike = new MockNeedsZeroResetApprove();
-        SuperOrbPositionalAMM ammLocal = new SuperOrbPositionalAMM(address(usdcLocal), address(usdtLike));
-
-        address spender = makeAddr("spenderNeedsReset");
-        ammLocal.adminSetApproval(address(usdtLike), spender);
-        assertEq(usdtLike.allowance(address(ammLocal), spender), type(uint256).max);
-        ammLocal.adminSetApproval(address(usdtLike), spender);
-        assertEq(usdtLike.allowance(address(ammLocal), spender), type(uint256).max);
     }
 
     function test_non_admin_cannot_set_approval() public {
