@@ -10,6 +10,15 @@ https://barterswap.xyz/superposition
 
 ## Deploy (Ethereum mainnet)
 
+**Canonical token addresses (Ethereum mainnet, chain id 1)**
+
+| Token | Address |
+|-------|---------|
+| USDC | `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` |
+| USDT | `0xdAC17F958D2ee523a2206206994597C13D831ec7` |
+
+These match `USDC_MAINNET` / `USDT_MAINNET` in `script/DeploySuperOrbPositionalAMM.s.sol`.
+
 Prerequisites: [Foundry](https://book.getfoundry.sh/), a Cast keystore account named `shells`, a mainnet RPC URL, and an [Etherscan API key](https://etherscan.io/apis).
 
 Set environment variables (replace placeholders):
