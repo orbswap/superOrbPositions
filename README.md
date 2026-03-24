@@ -21,11 +21,12 @@ These match `USDC_MAINNET` / `USDT_MAINNET` in `script/DeploySuperOrbPositionalA
 
 Prerequisites: [Foundry](https://book.getfoundry.sh/), a Cast keystore account named `shells`, a mainnet RPC URL, and an [Etherscan API key](https://etherscan.io/apis).
 
-Set environment variables (replace placeholders):
+Set environment variables locally (never commit real keys; `.env` is gitignored):
 
 ```bash
-export ETH_RPC_URL="https://your-custom-mainnet-rpc.example"
-export ETHERSCAN_API_KEY="your_etherscan_api_key"
+# Ethereum mainnet — Alchemy shape: https://eth-mainnet.g.alchemy.com/v2/<YOUR_KEY>
+export ETH_RPC_URL="https://eth-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY"
+export ETHERSCAN_API_KEY="YOUR_ETHERSCAN_API_KEY"
 ```
 
 Deploy `SuperOrbPositionalAMM` with the canonical mainnet USDC/USDT addresses (enforced when `chainid == 1` unless you set `SKIP_MAINNET_TOKEN_CHECK=true`):
@@ -34,13 +35,14 @@ Deploy `SuperOrbPositionalAMM` with the canonical mainnet USDC/USDT addresses (e
 forge script script/DeploySuperOrbPositionalAMM.s.sol:DeploySuperOrbPositionalAMM \
   --rpc-url "$ETH_RPC_URL" \
   --account shells \
+  --chain mainnet \
   --broadcast \
   --verify \
   --etherscan-api-key "$ETHERSCAN_API_KEY" \
   -vvvv
 ```
 
-Foundry uses the `mainnet` etherscan entry from `foundry.toml` (`ETHERSCAN_API_KEY`). If verification fails, confirm the RPC reports chain id `1` and the API key has access to Etherscan (not only other explorers).
+Foundry uses the `mainnet` etherscan entry from `foundry.toml` when the key is not passed on the CLI. If verification fails, confirm the RPC reports chain id `1` and the API key is valid for [Etherscan](https://etherscan.io/apis).
 
 ### Tests
 
