@@ -4,9 +4,9 @@ pragma solidity ^0.8.20;
 /// @dev Minimal ERC20 surface used by this contract.
 interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
-    function transfer(address to, uint256 amount) external returns (bool);
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-    function approve(address spender, uint256 amount) external returns (bool);
+    function transfer(address to, uint256 amount) external;
+    function transferFrom(address from, address to, uint256 amount) external;
+    function approve(address spender, uint256 amount) external;
 }
 
 /// @title SuperOrbPositionalAMM
@@ -70,38 +70,27 @@ contract SuperOrbPositionalAMM {
         amountOut = (amountIn * (BPS_DENOMINATOR - FEE_BPS)) / BPS_DENOMINATOR;
         if (amountOut < amountOutMin) revert InsufficientOutput();
 
-        if (!IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn)) revert TransferInFailed();
-        if (!IERC20(tokenOut).transfer(to, amountOut)) revert TransferOutFailed();
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        IERC20(tokenOut).transfer(to, amountOut);
 
         emit Swap(msg.sender, tokenIn, tokenOut, amountIn, amountOut, to);
     }
 
     /// @notice Approve spender for this contract's USDC/USDT balance.
-    /// @dev Uses a USDT-safe flow: if direct approve fails, tries approve(0) then approve(max).
     function adminSetApproval(address tokenAddress, address approved) external onlyAdmin {
         uint256 max = type(uint256).max;
-        if (!_callApprove(tokenAddress, approved, max)) {
-            if (!_callApprove(tokenAddress, approved, 0)) revert TransferOutFailed();
-            if (!_callApprove(tokenAddress, approved, max)) revert TransferOutFailed();
-        }
+        IERC20(tokenAddress).approve(approved, max);
 
         emit ApprovalSet(tokenAddress, approved, max);
     }
 
     function addLiquidity(address token, uint256 amount) external onlyAdmin {
-        if (!IERC20(token).transferFrom(msg.sender, address(this), amount)) revert TransferInFailed();
+        IERC20(token).transferFrom(msg.sender, address(this), amount);
         emit LiquidityAdded(token, amount, msg.sender);
     }
 
     function adminWithdraw(address token, uint256 amount, address to) external onlyAdmin {
-        if (!IERC20(token).transfer(to, amount)) revert TransferOutFailed();
+        IERC20(token).transfer(to, amount);
         emit Withdrawal(token, amount, to);
-    }
-
-    function _callApprove(address token, address spender, uint256 amount) private returns (bool) {
-        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.approve.selector, spender, amount));
-        if (!success) return false;
-        if (data.length == 0) return true;
-        return abi.decode(data, (bool));
     }
 }

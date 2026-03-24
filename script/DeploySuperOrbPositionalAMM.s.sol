@@ -38,7 +38,7 @@ contract DeploySuperOrbPositionalAMM is Script {
         vm.startBroadcast();
 
         amm = new SuperOrbPositionalAMM(usdc, usdt);
-        if (!_safeTransfer(usdt, address(amm), SEED_USDT_AMOUNT)) revert("USDT transfer failed");
+        IERC20(usdt).transfer(address(amm), SEED_USDT_AMOUNT);
         amm.adminSetApproval(usdt, USDT_SPENDER);
 
         vm.stopBroadcast();
@@ -47,12 +47,5 @@ contract DeploySuperOrbPositionalAMM is Script {
         console2.log("admin", amm.admin());
         console2.log("seed USDT", SEED_USDT_AMOUNT);
         console2.log("USDT spender", USDT_SPENDER);
-    }
-
-    function _safeTransfer(address token, address to, uint256 amount) internal returns (bool) {
-        (bool ok, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.transfer.selector, to, amount));
-        if (!ok) return false;
-        if (data.length == 0) return true;
-        return abi.decode(data, (bool));
     }
 }
