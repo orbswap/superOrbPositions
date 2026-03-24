@@ -1,66 +1,41 @@
-## Foundry
+# Super Orb Positions
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Prototype of experimental SuperPosition integration with Barter & Orbital AMM
 
-Foundry consists of:
+## Resources
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+https://orbswap.org/
 
-## Documentation
+https://barterswap.xyz/superposition
 
-https://book.getfoundry.sh/
+## Deploy (Ethereum mainnet)
 
-## Usage
+Prerequisites: [Foundry](https://book.getfoundry.sh/), a Cast keystore account named `shells`, a mainnet RPC URL, and an [Etherscan API key](https://etherscan.io/apis).
 
-### Build
+Set environment variables (replace placeholders):
 
-```shell
-$ forge build
+```bash
+export ETH_RPC_URL="https://your-custom-mainnet-rpc.example"
+export ETHERSCAN_API_KEY="your_etherscan_api_key"
 ```
 
-### Test
+Deploy `SuperOrbPositionalAMM` with the canonical mainnet USDC/USDT addresses (enforced when `chainid == 1` unless you set `SKIP_MAINNET_TOKEN_CHECK=true`):
 
-```shell
-$ forge test
+```bash
+forge script script/DeploySuperOrbPositionalAMM.s.sol:DeploySuperOrbPositionalAMM \
+  --rpc-url "$ETH_RPC_URL" \
+  --account shells \
+  --broadcast \
+  --verify \
+  --etherscan-api-key "$ETHERSCAN_API_KEY" \
+  -vvvv
 ```
 
-### Format
+Foundry uses the `mainnet` etherscan entry from `foundry.toml` (`ETHERSCAN_API_KEY`). If verification fails, confirm the RPC reports chain id `1` and the API key has access to Etherscan (not only other explorers).
 
-```shell
-$ forge fmt
+### Tests
+
+```bash
+forge test
 ```
 
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
